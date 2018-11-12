@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <script>
+      var xhr = new XMLHttpRequest();
+        xhr.open('get',"https://work1999.kcg.gov.tw/open1999/ServiceRequestsQuery.asmx/ServiceRequestsQuery",true);
+
+        xhr.send();
+        xhr.onload = function(){
+        var data = JSON.parse(xhr.responseText);
+        var local = document.querySelector('.local');
+        var type = document.querySelector('.type');
+        var content = document.querySelector('.content');
+        var total1 = {};
+        var total2 = {};
+        for(var i = 0;i<data.length;i++){
+            if(total1[data[i].ZipName_]==undefined){
+            total1[data[i].ZipName_]=1;
+            }
+            else{
+            total1[data[i].ZipName_]+=1;
+            }
+        }
+        
+        for(var j = 0;j<data.length;j++){
+            if(total2[data[j].InformDesc_]==undefined){
+            total2[data[j].InformDesc_]=1;
+            }
+            else{
+            total2[data[j].InformDesc_]+=1;
+            }
+        }
+        
+        var str1="<option>"+"請選擇地區"+"</option>";
+        var str2="<option>"+"請選擇類型"+"</option>";
+        for(item1 in total1){
+            str1+="<option>"+item1+"</option>";
+        }
+        
+        for(item2 in total2){
+            str2+="<option>"+item2+"</option>";
+        }
+        local.innerHTML=str1;
+        type.innerHTML=str2;
+        
+        var str3="";
+        for(item1 in total1){
+            str3+="<li>"+item1+":"+total1[item1]+"筆資料"+"</li>";
+        }
+        content.innerHTML=str3;
+        
+        local.addEventListener('change',function(e){
+            var str="";
+            var _local=local.value;
+            var total={};
+            for(var i = 0;i<data.length;i++){
+            if(data[i].ZipName_==_local){
+                if(total[data[i].InformDesc_]==undefined){
+                total[data[i].InformDesc_]=1;
+                }
+                else{
+                total[data[i].InformDesc_]+=1;
+                } 
+            }
+            }
+            for(item in total){
+            str+="<option>"+item+"</option>";
+            }
+            type.innerHTML=str;
+        })
+            
+        var submit=document.querySelector('.submit');
+        var amount=document.querySelector('.amount');
+        submit.addEventListener('click',function(e){
+            var _local=local.value;
+            var _type=type.value;
+            var count=0;
+            var str1="";
+            
+            for(var i = 0;i<data.length;i++){
+            if(data[i].ZipName_==_local&&data[i].InformDesc_==_type){
+                count++;
+                str1+="<li>"+"<h4>"+"地點:"+data[i].address_+"</h4>"+"<h5>"+"報案狀況:"+data[i].BeforeDesc_+"<h5>"+"</li>";
+            }
+            }
+            var str2=_local+"-"+_type+"-"+count+"件";  
+            content.innerHTML=str1;
+            amount.innerHTML=str2;
+        })
+};
+  </script>
+</head>
+<body>
+  <select class="local"></select>
+  <select class="type"></select>
+  <input type="button" class="submit" value='搜尋'>
+  <h1 class="amount"></h1>
+  <ul class="content"></ul>
+</body>
+</html>
